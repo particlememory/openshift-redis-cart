@@ -6,6 +6,31 @@ source $OPENSHIFT_CARTRIDGE_SDK_BASH
 
 version="2.8"
 
+set +e
+rm -rf tmp/redis
+mkdir tmp
+set -e
+
+version="2.8"
+binaries="../../versions/$version/bin"
+
+pushd tmp
+
+git clone https://github.com/antirez/redis -b $version
+
+cd redis
+make
+
+mkdir -p $binaries
+
+echo $(git rev-parse HEAD) > $binaries/.gitcommit
+for file in src/redis-cli src/redis-server; do
+  cp -f $file $binaries
+done
+
+popd
+rm -rf tmp/redis
+
 for dir in logs pid tmp env; do
 	mkdir -p $dir
 done
